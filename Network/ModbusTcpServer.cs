@@ -46,8 +46,10 @@ namespace ModbusServer.Network
             _memory[3].AddRange(Enumerable.Range(0, 1000).Select(_ => Convert.ToByte(0)));
             _memory[4].AddRange(Enumerable.Range(0, 1000).Select(_ => Convert.ToByte(0)));
 
-            _memory[1][1] = 1;
+            // Test 
+            _memory[1][0] = 5;
             _memory[3][1] = 66;
+            //
         }
 
         public void Init()
@@ -75,17 +77,7 @@ namespace ModbusServer.Network
 
         async  void AsyncTcpProcess(object o)
         {
-            //MBAP Header
-            //MODBUS-TCP는 MBAP(Modbus Application Protocol)를 선두로 Function code, Data로 순으로 이루어져 있습니다.MBAP는 총 7 Byte이고 아래와 같은 내용의 Byte값을 나타냅니다.
-
-            //Transaction ID[2Bytes] : 마스터(Client) 가 최초 0x0000값 부터 통신시작 시 1씩 증가시키며 슬래이브(Server) 는 그 값을 그대로 복사해서 사용합니다.쿼리및 응답에 대해 한쌍으로 작업이 이루어 졌는지를 확인하는 부분입니다.
-            //Protocol ID [2Bytes] : 프로토콜의 ID를 나타내며 MODBUS-TCP는 0x0000의 고정값을 사용합니다.
-            //Length[2Bytes] : Length 필드위치에서 프레임 마지막까지의 길이를 나타냅니다. 즉 Unit ID ~ Data끝까지의 Byte의 수를 나타냅니다.
-            //Unit ID [1 Byte] : TPC/IP가 아닌 다른 통신선로의 연결되어있는 Slave를 구분하는 정보입니다. Tcpport는 0x01로 고정입니다.
-
             TcpClient tc = o as TcpClient;
-
-            System.Threading.CancellationToken token;
 
             if (tc != null)
             {
@@ -105,7 +97,7 @@ namespace ModbusServer.Network
                                 break;
                             }
                             // ~ length (MBap)
-                            var nbytes = await stream.ReadAsync(buff, 0, MAX_SIZE, token).ConfigureAwait(false);
+                            var nbytes = await stream.ReadAsync(buff, 0, MAX_SIZE).ConfigureAwait(false);
                             if (nbytes > 0)
                             {
                                 int index = 0;
@@ -220,7 +212,7 @@ namespace ModbusServer.Network
                     return null;
                     break;
                 case 5:     // Write Single Coil
-                    return null;
+                    arrData = ProcessFC5(fcCode, startAddress, parmReadOrWrite);
                     break;
                 case 6:     // Write Single Register
                     arrData = ProcessWriteRegister(fcCode, startAddress, parmReadOrWrite);
@@ -252,12 +244,40 @@ namespace ModbusServer.Network
             return packet.ToArray();
         }
 
-        private byte[] ProcessFC1(byte fcCode, int startAddress, int readSize)
+        private byte[] ProcessFC5(byte fcCode, int startAddress, byte[] parmReadOrWrite)
         {
             var memory = GetMemoryFromCode(fcCode);
-            var data = Utils.Util.SubArray(memory.ToArray(), startAddress, readSize);
 
-            return data;
+            for (int i = 0; i < parmReadOrWrite.Length; i++)
+                memory[startAddress + i] = parmReadOrWrite[i];
+
+            return parmReadOrWrite;
+        }
+
+        private byte[] ProcessFC1(byte fcCode, int startAddress, int readSize)
+        {
+            var memories = GetMemoryFromCode(fcCode);
+            //var data = Utils.Util.SubArray(memory.ToArray(), startAddress, readSize);
+
+            List<byte> data = new List<byte>();
+
+            int byteCnt = readSize / 8;
+            int remainBit = readSize - (byteCnt * 8);
+
+            for (int i = startAddress; i < startAddress + byteCnt; i++)
+                data.Add(memories[i]);
+
+            byte bitCompare = 0;
+            for (int i = 0; i < remainBit; i++)
+            {
+                var tmp = (byte)(1 << i);
+                bitCompare |= tmp;
+            }
+
+            byte remainByte = (byte)(memories[startAddress + byteCnt] & bitCompare);
+            data.Add(remainByte);
+
+            return data.ToArray();
         }
 
         private byte[] ProcessWriteRegister(byte fcCode, int startAddress, byte[] writeData)
