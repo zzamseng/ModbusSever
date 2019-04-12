@@ -43,6 +43,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="LocalMemoryMap.cs" />
+    <Compile Include="Network\MessageFactory.cs" />
+    <Compile Include="Network\Message\FC1.cs" />
+    <Compile Include="Network\Message\FC15.cs" />
+    <Compile Include="Network\Message\FC16.cs" />
+    <Compile Include="Network\Message\FC2.cs" />
+    <Compile Include="Network\Message\FC3.cs" />
+    <Compile Include="Network\Message\FC4.cs" />
+    <Compile Include="Network\Message\FC5.cs" />
+    <Compile Include="Network\Message\FC6.cs" />
+    <Compile Include="Network\Message\IMessage.cs" />
     <Compile Include="Network\ModbusTcpServer.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
