@@ -17,11 +17,52 @@ namespace ModbusServer.Network.Message
         public byte[] StartAddress { get; set; }
         public byte[] Data { get; set; }
 
-        public byte[] Packet { get; }
+        public byte[] Packet { get; private set; }
 
         public void MakingResponsPacket()
         {
-            throw new NotImplementedException();
+            //if (BitConverter.IsLittleEndian)
+            //    Array.Reverse(StartAddress);
+
+            //var fcCode = FcCode[0];
+            //int startAddress = BitConverter.ToInt16(StartAddress, 0);
+
+            //if (BitConverter.IsLittleEndian)
+            //    Array.Reverse(Data);
+            //// on is 00ff, off is 0000
+            //bool onOff = Data[1] == 0xff? true : false;
+
+            ////
+            //var memory = LocalMemoryMap.Instance.Memory(fcCode);
+
+            //int bytePos = startAddress / 7;
+            //int bitPos = startAddress - (bytePos * 8);
+
+            //byte val = (byte)(1 << bitPos);
+            //if (onOff)
+            //    memory[bytePos] |= val;
+            //else
+            //{
+            //    byte tmp = (byte)(memory[bytePos] - val);
+            //    memory[bytePos] &= tmp;
+            //}
+            ////if ((memory[bytePos] | val) == 1) memory[bytePos] -= val;
+
+
+            //ushort totalLength = (ushort)(UnitID.Length + FcCode.Length + 1/*readsize of length*/ + Data.Length);
+            //var lengtharr = BitConverter.GetBytes(totalLength);
+            //Array.Reverse(lengtharr);
+
+            //List<byte> packet = new List<byte>();
+            //packet.AddRange(TransactionID);
+            //packet.AddRange(ProtocolID);
+            //packet.AddRange(lengtharr);// change length
+            //packet.AddRange(UnitID);
+            //packet.AddRange(FcCode);
+            //packet.AddRange(StartAddress);
+            //packet.AddRange(Data);
+
+            //Packet = packet.ToArray();
         }
 
         public string PrintDebugString()

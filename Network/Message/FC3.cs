@@ -25,7 +25,7 @@ namespace ModbusServer.Network.Message
                 Array.Reverse(StartAddress);
 
             var fcCode = FcCode[0];
-            int startAddress = BitConverter.ToInt16(StartAddress, 0);
+            int startAddress = BitConverter.ToInt16(StartAddress, 0) * 2;
 
             if (BitConverter.IsLittleEndian)
                 Array.Reverse(Data);
@@ -33,7 +33,7 @@ namespace ModbusServer.Network.Message
             // because word size
             int readSize = BitConverter.ToInt16(Data, 0) * 2;
 
-            var memory = LocalMemoryMap.Instance.Memory(fcCode);
+            var memory = LocalMemoryMap.Instance.Memory(fcCode) as List<byte>;
             var data = Utils.Util.SubArray(memory.ToArray(), startAddress, readSize);
 
             ushort totalLength = (ushort)(UnitID.Length + FcCode.Length + 1/*readsize of length*/ + readSize);
@@ -46,7 +46,7 @@ namespace ModbusServer.Network.Message
             packet.AddRange(lengtharr);// change length
             packet.AddRange(UnitID);
             packet.AddRange(FcCode);
-            packet.Add(Convert.ToByte(readSize));
+            packet.Add(Convert.ToByte(readSize / 2)); // byte count
             packet.AddRange(data);
 
             Packet = packet.ToArray();

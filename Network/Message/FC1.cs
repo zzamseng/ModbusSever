@@ -22,52 +22,77 @@ namespace ModbusServer.Network.Message
 
         public void MakingResponsPacket()
         {
-            if (BitConverter.IsLittleEndian)
-                Array.Reverse(StartAddress);
+            //if (BitConverter.IsLittleEndian)
+            //    Array.Reverse(StartAddress);
 
-            var fcCode = FcCode[0];
-            int startAddress = BitConverter.ToInt16(StartAddress, 0);
+            //var fcCode = FcCode[0];
+            //int startAddress = BitConverter.ToInt16(StartAddress, 0);
 
-            if (BitConverter.IsLittleEndian)
-                Array.Reverse(Data);
+            //if (BitConverter.IsLittleEndian)
+            //    Array.Reverse(Data);
 
-            int readSize = BitConverter.ToInt16(Data, 0);
+            //int readSize = BitConverter.ToInt16(Data, 0);
 
-            // read memory
-            var memories = LocalMemoryMap.Instance.Memory(fcCode);
-            List<byte> data = new List<byte>();
+            //// read memory
+            //var memories = LocalMemoryMap.Instance.Memory(fcCode);
+            //List<byte> data = new List<byte>();
 
-            int byteCnt = readSize / 8;
-            int remainBit = readSize - (byteCnt * 8);
+            //int bytePos = startAddress / 7;
+            //int readByte = readSize / 8;
+            //int remainBit = readSize - (readByte * 8);
 
-            for (int i = startAddress; i < startAddress + byteCnt; i++)
-                data.Add(memories[i]);
+            //byte bitCompare = 0;
+            //if (startAddress % 7 != 0)
+            //{
+            //    int startBit = startAddress % 8;
 
-            byte bitCompare = 0;
-            for (int i = 0; i < remainBit; i++)
-            {
-                var tmp = (byte)(1 << i);
-                bitCompare |= tmp;
-            }
+            //    bitCompare = 0;
+            //    for (int i = startBit; i < 8; i++)
+            //    {
+            //        var tmp = (byte)(1 << i);
+            //        bitCompare |= tmp;
+            //    }
 
-            byte remainByte = (byte)(memories[startAddress + byteCnt] & bitCompare);
-            data.Add(remainByte);
-            //
+            //    byte startByte = (byte)(memories[bytePos] & bitCompare);
 
-            ushort totalLength = (ushort)(UnitID.Length + FcCode.Length + 1/*readsize of length*/ + readSize);
-            var lengtharr = BitConverter.GetBytes(totalLength);
-            Array.Reverse(lengtharr);
+            //    startByte = (byte)(startByte >> startBit);
 
-            List<byte> packet = new List<byte>();
-            packet.AddRange(TransactionID);
-            packet.AddRange(ProtocolID);
-            packet.AddRange(lengtharr);// change length
-            packet.AddRange(UnitID);
-            packet.AddRange(FcCode);
-            packet.Add(Convert.ToByte(readSize));
-            packet.AddRange(data);
+            //    data.Add(startByte);
 
-            Packet = packet.ToArray();
+            //    bytePos++;
+            //}
+
+
+            //for (int i = bytePos; i < bytePos+readByte; i++)
+            //    data.Add(memories[i]);
+
+            //bytePos += readByte;
+
+            //bitCompare = 0;
+            //for (int i = 0; i < remainBit; i++)
+            //{
+            //    var tmp = (byte)(1 << i);
+            //    bitCompare |= tmp;
+            //}
+
+            //byte remainByte = (byte)(memories[bytePos] & bitCompare);
+            //data.Add(remainByte);
+            ////
+
+            //ushort totalLength = (ushort)(UnitID.Length + FcCode.Length + 1/*readsize of length*/ + (bytePos + 1));
+            //var lengtharr = BitConverter.GetBytes(totalLength);
+            //Array.Reverse(lengtharr);
+
+            //List<byte> packet = new List<byte>();
+            //packet.AddRange(TransactionID);
+            //packet.AddRange(ProtocolID);
+            //packet.AddRange(lengtharr);// change length
+            //packet.AddRange(UnitID);
+            //packet.AddRange(FcCode);
+            //packet.Add(Convert.ToByte((bytePos + 1)));
+            //packet.AddRange(data);
+
+            //Packet = packet.ToArray();
         }
 
         public string PrintDebugString()

@@ -25,13 +25,13 @@ namespace ModbusServer.Network.Message
                 Array.Reverse(StartAddress);
 
             var fcCode = FcCode[0];
-            int startAddress = BitConverter.ToInt16(StartAddress, 0);
+            int startAddress = BitConverter.ToInt16(StartAddress, 0) * 2;
 
             // because word size
             int readSize = BitConverter.ToInt16(Data, 0) * 2;
 
             //
-            var memory = LocalMemoryMap.Instance.Memory(fcCode);
+            var memory = LocalMemoryMap.Instance.Memory(fcCode) as List<byte>;
 
             // writedata contain length(2byte) and Byte Count(1byte) .. but dont need it
             Data = Util.SubArray(Data, 3, Data.Length - 3);
@@ -49,6 +49,7 @@ namespace ModbusServer.Network.Message
             packet.AddRange(lengtharr);// change length
             packet.AddRange(UnitID);
             packet.AddRange(FcCode);
+            packet.AddRange(StartAddress);
             packet.AddRange(Data);
 
             Packet = packet.ToArray();
