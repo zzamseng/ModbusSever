@@ -28,5 +28,30 @@ namespace ModbusServer.Utils
 
             return result;
         }
+
+        public static byte[] BitArrayToByteArr(System.Collections.BitArray bits, int index, int length)
+        {
+            int numBytes = length / 8;
+            if (length % 8 != 0) numBytes++;
+
+            byte[] bytes = new byte[numBytes];
+            int byteIndex = 0;
+            int bitIndex = 0;
+
+            for (int i = index; i < length; i++)
+            {
+                if (bits[i])
+                    bytes[byteIndex] |= (byte)(1 << bitIndex);
+
+                bitIndex++;
+                if (bitIndex == 8)
+                {
+                    bitIndex = 0;
+                    byteIndex++;
+                }
+            }
+
+            return bytes;
+        }
     }
 }

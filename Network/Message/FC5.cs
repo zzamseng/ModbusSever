@@ -1,5 +1,6 @@
 ﻿using ModbusServer.Utils;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -21,48 +22,38 @@ namespace ModbusServer.Network.Message
 
         public void MakingResponsPacket()
         {
-            //if (BitConverter.IsLittleEndian)
-            //    Array.Reverse(StartAddress);
+            if (BitConverter.IsLittleEndian)
+                Array.Reverse(StartAddress);
 
-            //var fcCode = FcCode[0];
-            //int startAddress = BitConverter.ToInt16(StartAddress, 0);
+            var fcCode = FcCode[0];
+            int startAddress = BitConverter.ToInt16(StartAddress, 0);
 
-            //if (BitConverter.IsLittleEndian)
-            //    Array.Reverse(Data);
-            //// on is 00ff, off is 0000
-            //bool onOff = Data[1] == 0xff? true : false;
+            if (BitConverter.IsLittleEndian)
+                Array.Reverse(Data);
 
-            ////
-            //var memory = LocalMemoryMap.Instance.Memory(fcCode);
+            // on is 00ff, off is 0000
+            bool onOff = Data[1] == 0xff? true : false;
 
-            //int bytePos = startAddress / 7;
-            //int bitPos = startAddress - (bytePos * 8);
+            //
+            var memory = LocalMemoryMap.Instance.Memory(fcCode) as BitArray;
 
-            //byte val = (byte)(1 << bitPos);
-            //if (onOff)
-            //    memory[bytePos] |= val;
-            //else
-            //{
-            //    byte tmp = (byte)(memory[bytePos] - val);
-            //    memory[bytePos] &= tmp;
-            //}
-            ////if ((memory[bytePos] | val) == 1) memory[bytePos] -= val;
+            memory.Set(startAddress, onOff);
 
 
-            //ushort totalLength = (ushort)(UnitID.Length + FcCode.Length + 1/*readsize of length*/ + Data.Length);
-            //var lengtharr = BitConverter.GetBytes(totalLength);
-            //Array.Reverse(lengtharr);
+            ushort totalLength = (ushort)(UnitID.Length + FcCode.Length + 1/*readsize of length*/ + Data.Length);
+            var lengtharr = BitConverter.GetBytes(totalLength);
+            Array.Reverse(lengtharr);
 
-            //List<byte> packet = new List<byte>();
-            //packet.AddRange(TransactionID);
-            //packet.AddRange(ProtocolID);
-            //packet.AddRange(lengtharr);// change length
-            //packet.AddRange(UnitID);
-            //packet.AddRange(FcCode);
-            //packet.AddRange(StartAddress);
-            //packet.AddRange(Data);
+            List<byte> packet = new List<byte>();
+            packet.AddRange(TransactionID);
+            packet.AddRange(ProtocolID);
+            packet.AddRange(lengtharr);// change length
+            packet.AddRange(UnitID);
+            packet.AddRange(FcCode);
+            packet.AddRange(StartAddress);
+            packet.AddRange(Data);
 
-            //Packet = packet.ToArray();
+            Packet = packet.ToArray();
         }
 
         public string PrintDebugString()

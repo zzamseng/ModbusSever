@@ -20,9 +20,9 @@ namespace ModbusServer
         private LocalMemoryMap()
         {
             // Coil
-            _bitMemory.TryAdd(1, new BitArray(1000));
+            _bitMemory.TryAdd(1, new BitArray(1000, false));
             // Discrete Inputs
-            _bitMemory.TryAdd(2, new BitArray(1000));
+            _bitMemory.TryAdd(2, new BitArray(1000, false));
             // Holding Register
             _wordMemory.TryAdd(3, new List<byte>());
             // Input Register
@@ -31,11 +31,6 @@ namespace ModbusServer
             // init value to zero
             _wordMemory[3].AddRange(Enumerable.Range(0, 1000).Select(_ => Convert.ToByte(0)));
             _wordMemory[4].AddRange(Enumerable.Range(0, 1000).Select(_ => Convert.ToByte(0)));
-
-            // Test 
-            //_memory[1][0] = 5;
-            _wordMemory[3][1] = 66;
-            //
         }
 
         public object Memory(byte type)
