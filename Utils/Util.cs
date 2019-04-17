@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -29,7 +30,7 @@ namespace ModbusServer.Utils
             return result;
         }
 
-        public static byte[] BitArrayToByteArr(System.Collections.BitArray bits, int index, int length)
+        public static byte[] BitArrayToByteArr(BitArray bits, int index, int length)
         {
             int numBytes = length / 8;
             if (length % 8 != 0) numBytes++;
@@ -52,6 +53,38 @@ namespace ModbusServer.Utils
             }
 
             return bytes;
+        }
+
+        public static BitArray ByteArrToBitArray(byte[] bytes, int byteCount, int bitLength)
+        {
+            var bits = new BitArray(bitLength);
+
+
+            int bitIndex = 0;
+            foreach (byte data in bytes)
+            {
+                if (bitLength <= 0) break;
+
+                int totalBit = bitLength % 8;
+                if (totalBit == 0)
+                {
+                    totalBit = 8;
+                    bitLength -= 8;
+                }
+
+                for (int i = 0; i < totalBit; i++)
+                {
+                    int rs = data & (byte)(1 << i);
+                    if (rs != 0)
+                        bits[bitIndex] = true;
+                    else
+                        bits[bitIndex] = false;
+
+                    bitIndex++;
+                }
+            }
+
+            return bits;
         }
     }
 }
